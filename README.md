@@ -40,10 +40,12 @@ It does require a login, but you can register for free and it is worth it. The d
 - Push button (for resetting WiFi credentials, built in on GPIO27 on the Firebeetle)
 
 ## Software Requirements
-- Arduino IDE
+- PlatformIO IDE (or you might change main.cpp to main.ino and get lucky with the Arduino IDE)
 - ESP32 board library
 - FastLED library
 - ArduinoJson library
+- ESP32mDNS
+- Other basic libs...
 
 ## File Descriptions
 
@@ -96,6 +98,3 @@ It does require a login, but you can register for free and it is worth it. The d
 
 Contributions are welcome! Please fork the repository and use a feature branch. Pull requests are warmly welcome.
 
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for details.
