@@ -1,0 +1,34 @@
+#ifndef WIFI_SETUP_SERVICE_HPP
+#define WIFI_SETUP_SERVICE_HPP
+
+#include <WiFi.h>
+#include <WebServer.h>
+#include <DNSServer.h>
+#include <Preferences.h>
+#include "../utils/ConfigService.hpp"
+
+class WiFiSetupService {
+public:
+    WiFiSetupService(ConfigService& configService);
+    void begin();
+    void loop();
+    void startAccessPoint();
+
+private:
+    void handleRoot();
+    void handleSetWiFi();
+    void handleNotFound();
+
+    WebServer server;
+    DNSServer dnsServer;
+    Preferences preferences;
+    ConfigService& configService;
+
+    const char* ap_ssid = "PowerPriceMonitor";
+    const char* ap_password = "12345678";
+    const byte DNS_PORT = 53;
+
+    String urlDecode(const String &text);
+};
+
+#endif // WIFI_SETUP_SERVICE_HPP
