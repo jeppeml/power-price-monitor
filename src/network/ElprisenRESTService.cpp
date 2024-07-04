@@ -7,7 +7,7 @@ extern struct tm timeinfo;
 extern int getCurrentHour();
 
 // Root cert for elprisenligenu.dk
-const char* rootCACertificate = "-----BEGIN CERTIFICATE-----\n"
+const char *rootCACertificate = "-----BEGIN CERTIFICATE-----\n"
                                 "MIIFazCCA1OgAwIBAgIRAIIQz7DSQONZRGPgu2OCiwAwDQYJKoZIhvcNAQELBQAw\n"
                                 "TzELMAkGA1UEBhMCVVMxKTAnBgNVBAoTIEludGVybmV0IFNlY3VyaXR5IFJlc2Vh\n"
                                 "cmNoIEdyb3VwMRUwEwYDVQQDEwxJU1JHIFJvb3QgWDEwHhcNMTUwNjA0MTEwNDM4\n"
@@ -41,15 +41,16 @@ const char* rootCACertificate = "-----BEGIN CERTIFICATE-----\n"
 
 ElprisenRESTService::ElprisenRESTService() : lastFetchDay(-1) {}
 
-double ElprisenRESTService::getPriceForCurrentHour() {
+double ElprisenRESTService::getPriceForCurrentHour()
+{
+    int hour = getCurrentHour();
+
     int currentDay = timeinfo.tm_mday;
-    if (currentDay != lastFetchDay) {
+    if (currentDay != lastFetchDay)
+    {
         fetchDailyData();
         lastFetchDay = currentDay;
     }
-
-    int hour = getCurrentHour();
-    //Serial.println("Current hour: " + String(hour));
 
     JSONVar priceAtHour = prices[hour]["DKK_per_kWh"];
     double price = double(priceAtHour);
@@ -57,69 +58,83 @@ double ElprisenRESTService::getPriceForCurrentHour() {
     return price;
 }
 
-void ElprisenRESTService::fetchDailyData() {
+void ElprisenRESTService::fetchDailyData()
+{
     String payload = fetchDataFromAPI();
-    if (payload == "ERROR") {
+    if (payload == "ERROR")
+    {
         Serial.println("Failed to fetch data from API.");
         return;
     }
 
     prices = JSON.parse(payload);
-    if (JSON.typeof(prices) != "array") {
+    if (JSON.typeof(prices) != "array")
+    {
         Serial.println("Invalid JSON received");
         prices = JSONVar();
     }
 }
 
-String ElprisenRESTService::fetchDataFromAPI() {
+String ElprisenRESTService::fetchDataFromAPI()
+{
     String serverName = "https://www.elprisenligenu.dk/api/v1/prices/" + getRequestDatePartialURL() + "_DK1.json"; // DK1 is west Denmark, look at the API docs at elprisenligenu
     String payload = "ERROR";
-    if (WiFi.status() == WL_CONNECTED) {
+    if (WiFi.status() == WL_CONNECTED)
+    {
         std::unique_ptr<WiFiClientSecure> client(new WiFiClientSecure);
         client->setCACert(rootCACertificate);
 
         HTTPClient https;
-        if (https.begin(*client, serverName)) {
+        if (https.begin(*client, serverName))
+        {
             int httpCode = https.GET();
-            if (httpCode > 0) {
-                if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
+            if (httpCode > 0)
+            {
+                if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY)
+                {
                     payload = https.getString();
                 }
-            } else {
+            }
+            else
+            {
                 Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
             }
             https.end();
-        } else {
+        }
+        else
+        {
             Serial.printf("[HTTPS] Unable to connect\n");
         }
-    } else {
+    }
+    else
+    {
         Serial.println("WiFi Disconnected");
     }
     return payload;
 }
 
-String ElprisenRESTService::getRequestDatePartialURL() {
+String ElprisenRESTService::getRequestDatePartialURL()
+{
     char timeYear[5];
     strftime(timeYear, 5, "%Y", &timeinfo);
     String year = String(timeYear);
-    //Serial.println(year);
 
     int dayNum = timeinfo.tm_mday;
     String day = String(dayNum);
-    if (dayNum <= 9) {
+    if (dayNum <= 9)
+    {
         day = "0" + String(dayNum);
     }
-    //Serial.println(day);
 
     int monthNum = timeinfo.tm_mon + 1;
     String month = String(monthNum);
-    if (monthNum <= 9) {
+    if (monthNum <= 9)
+    {
         month = "0" + String(monthNum);
     }
-    //Serial.println(month);
-
+    
     // 2024/06-15_DK1.json
     String req_date = year + "/" + month + "-" + day;
-    Serial.println("Current date: " + req_date);
+    Serial.println("Current date: " + day + "/" + month + "-" + year + "   request date (for url): " + req_date);
     return req_date;
 }

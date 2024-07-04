@@ -23,5 +23,10 @@ void updateTime() {
 }
 
 int getCurrentHour() {
+  if (!getLocalTime(&timeinfo)) {
+    Serial.println("Failed to obtain time");
+    return -1;  // Return an invalid hour if time can't be obtained
+  }
   return timeinfo.tm_hour;
 }
+

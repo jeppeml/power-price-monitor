@@ -131,8 +131,7 @@ void setup() {
   Serial.print("Wifi status=");
   Serial.println(String(WiFi.status()));
   while (WiFi.status() != WL_CONNECTED) {
-    wifiSetupService->loop();
-    delay(100);  // small delay to prevent tight loop
+    connectWiFi(ssid.c_str(), password.c_str());
   }
 
   Serial.println("Connected to WiFi.");
