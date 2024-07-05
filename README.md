@@ -72,14 +72,13 @@ It does require a login, but you can register for free and it is worth it. The d
    ```
 
 2. **Install Required Libraries**
-   Open the Arduino IDE and install the following libraries through the Library Manager:
+   Open PlatformIO and make sure following libraries are installed (they should already be in the ini file):
    - FastLED
    - ArduinoJson
    - ArduinoJSON
    - ESP32mDNS
 
 3. **Upload**
-   - Open the folder in PlatformIO
    - Connect your ESP32 board to your computer
    - Select the appropriate board and port from the Tools menu
    - Upload the sketch to the ESP32
