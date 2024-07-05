@@ -1,7 +1,7 @@
 
 # Power Price Monitor
 
-This project is an IoT device that monitors power prices and displays the current **price as a color of light** using an RGB LED on the ESP32. 
+IoT device that monitors power prices and displays the current **price as a color of light** using an RGB LED on the ESP32. 
 
 It connects to a **Philips Hue bridge** to control grouped lights based on the power price.
 
@@ -34,7 +34,7 @@ It does require a login, but you can register for free and it is worth it. The d
 - [License](#license)
 
 ## Hardware Requirements
-- ESP32 board, setup up with the FireBeetle 2 ESP32-E IoT
+- ESP32 board, made for FireBeetle 2 ESP32-E IoT, but any other board should do. You need to change the neopixel RGB led pin from D8 to your relevant GPIO
 - RGB LED (Neopixel, built in on the Firebeetle)
 - Philips Hue bridge
 - Push button (for resetting WiFi credentials, built in on GPIO27 on the Firebeetle)
@@ -59,7 +59,7 @@ It does require a login, but you can register for free and it is worth it. The d
 - **ConfigService.hpp/cpp**: Manages saving and loading WiFi credentials and API keys from non-volatile storage.
 - **HueService.hpp/cpp**: Discovers and fetches IP address and port of the Philips Hue bridge.
 - **HueLightService.hpp/cpp**: Controls the lights connected to the Philips Hue bridge.
-- **HueEventService.hpp/cpp**: Handles events from the Philips Hue bridge. (Currently not integrated, needs a lot of work)
+- **HueEventService.hpp/cpp**: Handles events from the Philips Hue bridge. (Currently not integrated, but does work. Needs more work and integration with main.cpp not straightforward)
 - **WiFiSetupService.hpp/cpp**: Sets up the device as a WiFi access point to capture WiFi credentials using `Captive Portal` 
 - **WiFiUtils.hpp/cpp**: Simply connects to the Wifi, keeps trying forever
 
@@ -75,12 +75,14 @@ It does require a login, but you can register for free and it is worth it. The d
    Open the Arduino IDE and install the following libraries through the Library Manager:
    - FastLED
    - ArduinoJson
+   - ArduinoJSON
+   - ESP32mDNS
 
-3. **Upload the Sketch**
-   - Open `PowerPriceLED.ino` in the Arduino IDE.
-   - Connect your ESP32 board to your computer.
-   - Select the appropriate board and port from the Tools menu.
-   - Upload the sketch to the ESP32.
+3. **Upload**
+   - Open the folder in PlatformIO
+   - Connect your ESP32 board to your computer
+   - Select the appropriate board and port from the Tools menu
+   - Upload the sketch to the ESP32
 
 4. **Setup WiFi Credentials**
    - Upon first boot, the device will start as an access point named `PowerPriceMonitor`.
@@ -92,9 +94,15 @@ It does require a login, but you can register for free and it is worth it. The d
 
 - The device fetches the current power price every minute and updates the color of the RGB LED based on the price.
 - The Philips Hue lights in the specified room will also change color based on the power price.
-- If the button connected to GPIO27 is pressed, the device will reset the WiFi credentials and restart in access point mode.
+- If the button connected to GPIO27 is pressed while booting, the device will reset the WiFi credentials and restart in access point mode.
 
 ## Contributing
 
 Contributions are welcome! Please fork the repository and use a feature branch. Pull requests are warmly welcome.
 
+## TODO
+- Currently I reused some code, and therefore use 2 different JSON libraries (ArduinoJson and ArduinoJSON, yes I know... Confusing...), needs to be refactored to use only one
+- WiFi setup should include setting up the price points for high, medium, low, very low
+- WiFi setup should include setting up the colors for price points
+- HTTPS should be enabled for the Hue bridge connection
+- "Nice to have", would be instead of polling changes in the room, to listen for changes through events. I have a working service for this `HueEventService`, however it needs some work to properly filter events and be integrated with the main.cpp would require some work, because of the async nature of events. The max polling is 1 light change per second according to the documentation, and right now I set it up to 1 minute... so this shouldn't be a problem
