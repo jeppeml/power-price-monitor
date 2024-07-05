@@ -9,6 +9,7 @@
 #define LED_TYPE NEOPIXEL  // RGB LED strip type
 
 void setupLED();
-void setRGBColor(uint8_t r, uint8_t g, uint8_t b);
+void setRGBColor(const uint8_t r,const  uint8_t g,const uint8_t b);
+void setNeopixelColorRGB(const uint8_t* colorRGB);
 
 #endif // RGBCONTROL_HPP

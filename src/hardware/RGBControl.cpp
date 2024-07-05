@@ -7,7 +7,12 @@ void setupLED() {
     FastLED.addLeds<LED_TYPE, DATA_PIN>(leds, NUM_LEDS);  // Initialize RGB LED
 }
 
-void setRGBColor(uint8_t r, uint8_t g, uint8_t b) {
+void setRGBColor(const uint8_t r,const uint8_t g,const uint8_t b) {
     leds[0] = CRGB(r, g, b);
     FastLED.show();
 }
+
+void setNeopixelColorRGB(const uint8_t* colorRGB) {
+    setRGBColor(colorRGB[0],colorRGB[1],colorRGB[2]);
+}
+

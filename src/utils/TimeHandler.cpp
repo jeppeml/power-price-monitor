@@ -14,7 +14,7 @@ void updateTime() {
     yield();
     nowSecs = time(nullptr);
   }
-  //gmtime_r(&nowSecs, &timeinfo);
+  
   if(!getLocalTime(&timeinfo)){
     Serial.println("Failed to obtain time");
     return;

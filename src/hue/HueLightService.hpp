@@ -12,7 +12,7 @@ public:
     String getAPIKey() const;
 
     void lightControlXY(const String &hueAddress, const String &groupedLightID, float x, float y);
-    void lightControlRGB(const String &hueAddress, const String &groupedLightID, uint8_t r, uint8_t g, uint8_t b);
+    void lightControlRGB(const String &hueAddress, const String &groupedLightID, const uint8_t* colorRGB);
 
     bool provisionDevice(const String &hueAddress);
     bool checkAPIKey(const String &hueAddress);

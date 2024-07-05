@@ -65,8 +65,7 @@ void WiFiSetupService::handleSetWiFi() {
         String response = "Data saved. Restarting device...";
         server.send(200, "text/html", response);
 
-        // Restart ESP32
-        delay(2000);
+        delay(4000); // Wait so the user can see the restart message
         ESP.restart();
     } else {
         server.send(400, "text/html", "Invalid request");
@@ -78,7 +77,7 @@ void WiFiSetupService::handleNotFound() {
     server.send(302, "text/plain", "");
 }
 
-// Function to decode URL-encoded strings
+// Function to decode URL-encoded strings, enables foreign characters like "ø"
 String WiFiSetupService::urlDecode(const String &text) {
     String decoded = "";
     char temp[] = "0x00";

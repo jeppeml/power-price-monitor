@@ -1,3 +1,4 @@
+/* External headers */
 #include <Arduino.h>
 #include <WiFi.h>
 #include <HTTPClient.h>
@@ -5,7 +6,7 @@
 #include <LittleFS.h>
 #include <vector>
 
-#include "utils/ConfigService.hpp"
+/* Headers that are part of this project */
 #include "hue/HueService.hpp"
 #include "hue/HueLightService.hpp"
 #include "hue/HueEventService.hpp"
@@ -14,17 +15,9 @@
 #include "hardware/RGBControl.hpp"
 #include "utils/TimeHandler.hpp"
 #include "utils/WiFiUtils.hpp"
+#include "utils/ConfigService.hpp"
 
-unsigned long lastTime = 0;
-unsigned long minutesBetweenUpdates = 2;  // Update every 2 minutes
-unsigned long timerDelay = minutesBetweenUpdates * 60 * 1000;
-unsigned long provisioningInterval = 5000;  // Check every 5 seconds for provisioning (Getting API key from the Hue through button press)
-unsigned long blinkInterval = 250;          // Blink every 250 ms if the button needs to be pressed on the Hue Bridge
-
-String roomName = "Strøm er dyrt";  // Room name to monitor, this is the default name, must be set when setting up WiFi
-
-struct tm timeinfo;
-
+/* Declare all services used in the program, initialized on setup and reused throughout */
 HueService* hueService;
 HueLightService* hueLightService;
 ConfigService* configService;
@@ -32,47 +25,80 @@ HueEventService* hueEventService;
 WiFiSetupService* wifiSetupService;
 ElprisenRESTService* elprisenRESTService;
 
-double redPriceMin = 1.7;
-double bluePriceMin = 0.5;
-double greenPriceMin = 0.05;
+/* Define colors and prices */
+const uint8_t red[3] = {255,0,0};
+const uint8_t blue[3] = {0,0,255};
+const uint8_t green[3] = {0,255,0};
+const uint8_t white[3] = {255,255,255};
+const uint8_t purple[3] = {156,0,156};
 
-bool provisioned = false;
-unsigned long lastProvisionCheck = 0;
-unsigned long lastBlinkTime = 0;
-bool blinkState = false;
-unsigned long lastNTPUpdateTime = 0;
-unsigned long ntpUpdateInterval = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+// TODO: Would like this to be setup from WiFiSetupService and saved to Preferences through the ConfigService
+//       Colors would be nice to define with a color picker on the WiFi setup for each color, at least for the prices.
+const double priceHigh = 1.7;
+const double priceMedium = 0.5;
+const double priceLow = 0.05; // anything below this is colorPriceVeryLow
 
+const uint8_t* colorPriceHigh = red;
+const uint8_t* colorPriceMedium = blue;
+const uint8_t* colorPriceLow = green;
+const uint8_t* colorPriceVeryLow = white;
 
+/* Shared timeinfo */
+struct tm timeinfo;
+
+/* Hardware */
 const int USER_RESET_BTN = 27;
 
-String currentGroupedLightID;
+/* Blinking for missing WiFi */
+unsigned long lastBlinkTime = 0;
+bool blinkState = false;
+
+/* NTP Server timer */
+unsigned long lastNTPUpdateTime = 0;
+unsigned long ntpUpdateInterval = 24 * 60 * 60 * 1000; // 24 hours in milliseconds for updating the time from NTP
+
+/* Setup the main update time for the lights. How often should it check the bridge for new lights in the room */
+unsigned long lastLightsCheck = 0;
+unsigned long minutesBetweenLightUpdates = 2;  // Update every 2 minutes
+unsigned long timerDelayLights = minutesBetweenLightUpdates * 60 * 1000;
+
+/* Provisioning setup, if bridge has not recognized the ESP32 */
+unsigned long provisioningInterval = 5000;  // Check every 5 seconds for provisioning (Getting API key from the Hue through button press)
+unsigned long blinkIntervalProvisioning = 250;          // Blink every 250 ms if the button needs to be pressed on the Hue Bridge
+bool provisioned = false;
+unsigned long lastProvisionCheck = 0;
+
+/* Temp name for the room, will try to load this from config file, part of initial setup */
+String roomName = "Strøm er dyrt";  // Room name to monitor, this is the default name, must be set when setting up WiFi
+
+/* ID used for updating all lights in the room easily. From that fetch the light service on that. */
+String currentGroupedLightID; 
 
 void setColorBasedOnPrice(double price) {
   if (currentGroupedLightID == "") return;
 
-  if (price > redPriceMin) {
-    hueLightService->lightControlRGB(hueService->getIP(), currentGroupedLightID, 255, 0, 0);  // Red
-    setRGBColor(255, 0, 0);
-  } else if (price > bluePriceMin) {
-    hueLightService->lightControlRGB(hueService->getIP(), currentGroupedLightID, 0, 0, 255);  // Blue
-    setRGBColor(0, 0, 255);
-  } else if (price > greenPriceMin) {
-    hueLightService->lightControlRGB(hueService->getIP(), currentGroupedLightID, 0, 255, 0);  // Green
-    setRGBColor(0, 255, 0);
+  if (price > priceHigh) {
+    hueLightService->lightControlRGB(hueService->getIP(), currentGroupedLightID, colorPriceHigh);  
+    setNeopixelColorRGB(colorPriceHigh);
+  } else if (price > priceMedium) {
+    hueLightService->lightControlRGB(hueService->getIP(), currentGroupedLightID, colorPriceMedium); 
+    setNeopixelColorRGB(colorPriceMedium);
+  } else if (price > priceLow) {
+    hueLightService->lightControlRGB(hueService->getIP(), currentGroupedLightID, colorPriceLow);  
+    setNeopixelColorRGB(colorPriceLow);
   } else {
-    hueLightService->lightControlRGB(hueService->getIP(), currentGroupedLightID, 255, 255, 255);  // White
-    setRGBColor(255, 255, 255);
+    hueLightService->lightControlRGB(hueService->getIP(), currentGroupedLightID, colorPriceVeryLow);
+    setNeopixelColorRGB(colorPriceVeryLow);
   }
 }
 
 void provisioningBlink() {
   unsigned long currentTime = millis();
-  if (currentTime - lastBlinkTime >= blinkInterval) {
+  if (currentTime - lastBlinkTime >= blinkIntervalProvisioning) {
     if (blinkState) {
-      setRGBColor(255, 0, 0);  // Red
+      setNeopixelColorRGB(red);  
     } else {
-      setRGBColor(0, 0, 255);  // Blue
+      setNeopixelColorRGB(blue);  
     }
     blinkState = !blinkState;
     lastBlinkTime = currentTime;
@@ -98,9 +124,7 @@ void setup() {
     }
   }
   
-  //while (!Serial) {}
-  //delay(800); // only for debugging without reset
-  lastTime = millis() - timerDelay;  // start immediately
+  lastLightsCheck = millis() - timerDelayLights;  // start immediately
 
   configService = new ConfigService();
   if (!configService->begin()) {
@@ -184,14 +208,14 @@ void setup() {
 }
 
 void loop() {
-  if ((millis() - lastTime) > timerDelay) {
+  if ((millis() - lastLightsCheck) > timerDelayLights) {
     // Extra check if WiFi is connected
     Serial.print("Wifi status=");
     Serial.println(String(WiFi.status()));
 
     if (WiFi.status() != WL_CONNECTED) {
       Serial.println("WiFi not connected, trying to connect...");
-      setRGBColor(153, 0, 153);
+      setNeopixelColorRGB(purple); 
       connectWiFi(configService->loadSSID().c_str(), configService->loadPassword().c_str());
     }
 
@@ -211,6 +235,6 @@ void loop() {
       Serial.println("Hue service not found.");
     }
 
-    lastTime = millis();
+    lastLightsCheck = millis();
   }
 }

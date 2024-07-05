@@ -43,9 +43,9 @@ void HueLightService::lightControlXY(const String &hueAddress, const String &gro
     http.end();
 }
 
-void HueLightService::lightControlRGB(const String &hueAddress, const String &groupedLightID, uint8_t r, uint8_t g, uint8_t b) {
+void HueLightService::lightControlRGB(const String &hueAddress, const String &groupedLightID, const uint8_t* colorRGB) {
     float x, y;
-    rgbToXY(r, g, b, x, y);
+    rgbToXY(colorRGB[0], colorRGB[1], colorRGB[2], x, y);
     lightControlXY(hueAddress, groupedLightID, x, y);
 }
 
