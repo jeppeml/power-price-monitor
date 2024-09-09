@@ -217,6 +217,10 @@ String HueLightService::getRoomID(const String &hueAddress, const String &roomNa
             String name = room["metadata"]["name"];
             Serial.print("Room found: ");
             Serial.println(name);
+            Serial.println(roomName);
+            Serial.println(room);
+            Serial.println(room["id"].as<String>());
+            
             if (name == roomName) {
                 return room["id"].as<String>();
             }
@@ -229,13 +233,15 @@ String HueLightService::getRoomID(const String &hueAddress, const String &roomNa
     }
 
     http.end();
-    return "";
+    return "ERROR";
 }
 
 String HueLightService::getGroupedLightID(const String &hueAddress, const String &roomID) {
+    Serial.println("HueLightService: roomID '" + roomID + "'"); // Debugging
     HTTPClient http;
     String url = "https://" + hueAddress + "/clip/v2/resource/room/" + roomID;
     http.begin(url);  
+    
 
     http.addHeader("Content-Type", "application/json");
     http.addHeader("hue-application-key", apiKey);

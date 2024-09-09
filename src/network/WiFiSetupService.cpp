@@ -4,8 +4,9 @@ WiFiSetupService::WiFiSetupService(ConfigService& configService)
     : server(80), configService(configService) {}
 
 void WiFiSetupService::startAPAndResetWhenDone(){
-    begin();
+    
     startAccessPoint();
+    begin();
     loopAndProcess();
 }
 
@@ -20,6 +21,7 @@ void WiFiSetupService::loopAndProcess() {
     while(true){
         dnsServer.processNextRequest();
         server.handleClient();
+        delay(10);
     }
 }
 
@@ -31,7 +33,7 @@ void WiFiSetupService::startAccessPoint() {
     Serial.println(WiFi.softAPIP());
 
     dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
-    begin();
+    //begin();
 }
 
 void WiFiSetupService::handleRoot() {

@@ -5,7 +5,7 @@
 
 extern struct tm timeinfo;
 extern int getCurrentHour();
-
+/*
 // Root cert for elprisenligenu.dk
 const char *rootCACertificate = "-----BEGIN CERTIFICATE-----\n"
                                 "MIIFazCCA1OgAwIBAgIRAIIQz7DSQONZRGPgu2OCiwAwDQYJKoZIhvcNAQELBQAw\n"
@@ -38,6 +38,7 @@ const char *rootCACertificate = "-----BEGIN CERTIFICATE-----\n"
                                 "mRGunUHBcnWEvgJBQl9nJEiU0Zsnvgc/ubhPgXRR4Xq37Z0j4r7g1SgEEzwxA57d\n"
                                 "emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=\n"
                                 "-----END CERTIFICATE-----\n";
+*/
 
 ElprisenRESTService::ElprisenRESTService() : lastFetchDay(-1) {}
 
@@ -82,8 +83,8 @@ String ElprisenRESTService::fetchDataFromAPI()
     if (WiFi.status() == WL_CONNECTED)
     {
         std::unique_ptr<WiFiClientSecure> client(new WiFiClientSecure);
-        client->setCACert(rootCACertificate);
-
+    //        client->setCACert(rootCACertificate);
+        client->setInsecure();
         HTTPClient https;
         if (https.begin(*client, serverName))
         {
