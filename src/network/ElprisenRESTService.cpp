@@ -41,7 +41,12 @@ String ElprisenRESTService::fetchDataFromAPI() {
 
     if (WiFi.status() == WL_CONNECTED) {
         std::unique_ptr<WiFiClientSecure> client(new WiFiClientSecure);
+
+        // SECURITY ISSUE, this does not check if the server is the one you think, vulnerable to MITM attacks
+        // I changed to this because the certificate of the server changed and I don't want to recompile every time
+        // it changed. 
         client->setInsecure(); // Skipping certificate verification
+    
 
         HTTPClient https;
         if (https.begin(*client, serverName)) {

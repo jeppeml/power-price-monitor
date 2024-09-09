@@ -2,7 +2,7 @@
 #include <ArduinoJson.h>
 
 // NOTE: This does NOT use HTTPS as adviced by Signify (https://developers.meethue.com/develop/application-design-guidance/using-https/)
-
+// This is a serious security concern
 
 HueEventService::HueEventService(const String &hueAddress, const String &apiKey)
     : hueAddress(hueAddress), apiKey(apiKey), roomChangeCallback(nullptr) {
