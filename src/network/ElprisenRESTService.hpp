@@ -2,7 +2,9 @@
 #define ELPRISENRESTSERVICE_HPP
 
 #include <Arduino.h>
-#include <Arduino_JSON.h>
+#include <ArduinoJson.h>
+#include <WiFiClientSecure.h>
+#include <HTTPClient.h>
 #include <time.h>
 
 class ElprisenRESTService {
@@ -12,7 +14,7 @@ public:
     void fetchDailyData();
 
 private:
-    JSONVar prices;
+    JsonDocument prices;   
     int lastFetchDay;
     String getRequestDatePartialURL();
     String fetchDataFromAPI();

@@ -75,7 +75,6 @@ It does require a login, but you can register for free and it is worth it. The d
    Open PlatformIO and make sure following libraries are installed (they should already be in the ini file):
    - FastLED
    - ArduinoJson
-   - ArduinoJSON
    - ESP32mDNS
 
 3. **Upload**
@@ -100,7 +99,6 @@ It does require a login, but you can register for free and it is worth it. The d
 Contributions are welcome! Please fork the repository and use a feature branch. Pull requests are warmly welcome.
 
 ## TODO
-- Currently I reused some code, and therefore use 2 different JSON libraries (ArduinoJson and ArduinoJSON, yes I know... Confusing...), needs to be refactored to use only one
 - WiFi setup should include setting up the price points for high, medium, low, very low
 - WiFi setup should include setting up the colors for price points
 - HTTPS should be enabled for the Hue bridge connection
