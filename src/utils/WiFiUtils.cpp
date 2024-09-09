@@ -1,11 +1,10 @@
 #include "esp_wifi_types.h"
 #include <WiFi.h>
 #include "WiFiUtils.hpp"
-#include <Preferences.h>
 
-void connectWiFi(const char* ssid, const char* password) {
+void connectWiFi(String ssid, String password) {
   WiFi.mode(WIFI_MODE_STA);
-  WiFi.begin(ssid, password);
+  WiFi.begin(ssid.c_str(), password.c_str());
   Serial.println("Connecting to WiFi...");
   int count = 0;
   while (WiFi.status() != WL_CONNECTED) {

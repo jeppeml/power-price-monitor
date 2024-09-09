@@ -3,6 +3,12 @@
 WiFiSetupService::WiFiSetupService(ConfigService& configService)
     : server(80), configService(configService) {}
 
+void WiFiSetupService::startAPAndResetWhenDone(){
+    begin();
+    startAccessPoint();
+    loopAndProcess();
+}
+
 void WiFiSetupService::begin() {
     server.on("/", std::bind(&WiFiSetupService::handleRoot, this));
     server.on("/setwifi", HTTP_POST, std::bind(&WiFiSetupService::handleSetWiFi, this));
@@ -10,9 +16,11 @@ void WiFiSetupService::begin() {
     server.begin();
 }
 
-void WiFiSetupService::loop() {
-    dnsServer.processNextRequest();
-    server.handleClient();
+void WiFiSetupService::loopAndProcess() {
+    while(true){
+        dnsServer.processNextRequest();
+        server.handleClient();
+    }
 }
 
 void WiFiSetupService::startAccessPoint() {

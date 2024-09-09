@@ -4,17 +4,17 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include <DNSServer.h>
-#include <Preferences.h>
 #include "../utils/ConfigService.hpp"
 
 class WiFiSetupService {
 public:
     WiFiSetupService(ConfigService& configService);
-    void begin();
-    void loop();
-    void startAccessPoint();
+    void startAPAndResetWhenDone();
 
 private:
+    void begin();
+    void loopAndProcess();
+    void startAccessPoint();
     void handleRoot();
     void handleSetWiFi();
     void handleNotFound();
