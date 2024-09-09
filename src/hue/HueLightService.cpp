@@ -52,8 +52,8 @@ void HueLightService::lightControlRGB(const String &hueAddress, const String &gr
 String HueLightService::buildRequestBody(bool onoff, float colorx, float colory) {
     JsonDocument doc;
 
-    doc["on"]["on"] = onoff;
-    //doc["dimming"]["brightness"] = 100.0; commmented out to control from app
+    // doc["on"]["on"] = onoff; // Light does not turn on, controlled by user
+    // doc["dimming"]["brightness"] = 100.0; commmented out to control from app
     JsonObject color = doc["color"].to<JsonObject>();
     JsonObject xy = color["xy"].to<JsonObject>();
     xy["x"] = colorx;
