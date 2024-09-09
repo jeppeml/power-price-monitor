@@ -60,7 +60,7 @@ unsigned long ntpUpdateInterval = 24 * 60 * 60 * 1000; // 24 hours in millisecon
 
 /* Setup the main update time for the lights. How often should it check the bridge for new lights in the room */
 unsigned long lastLightsCheck = 0;
-unsigned long minutesBetweenLightUpdates = 1; // Update every 2 minutes
+unsigned long minutesBetweenLightUpdates = 1; 
 unsigned long timerDelayLights = minutesBetweenLightUpdates * 60 * 1000;
 
 /* Provisioning setup, if bridge has not recognized the ESP32 */
