@@ -6,9 +6,10 @@
 #include <DNSServer.h>
 #include "../utils/ConfigService.hpp"
 
-class WiFiSetupService {
+class WiFiSetupService
+{
 public:
-    WiFiSetupService(ConfigService& configService);
+    WiFiSetupService(ConfigService &configService);
     void startAPAndResetWhenDone();
 
 private:
@@ -18,14 +19,15 @@ private:
     void handleRoot();
     void handleSetWiFi();
     void handleNotFound();
+    uint32_t convertColorToRGB(String hexColor);
 
     WebServer server;
     DNSServer dnsServer;
     Preferences preferences;
-    ConfigService& configService;
+    ConfigService &configService;
 
-    const char* ap_ssid = "PowerPriceMonitor";
-    const char* ap_password = "12345678";
+    const char *ap_ssid = "PowerPriceMonitor";
+    const char *ap_password = "12345678";
     const byte DNS_PORT = 53;
 
     String urlDecode(const String &text);
