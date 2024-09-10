@@ -8,13 +8,15 @@ It connects to a **Philips Hue bridge** to control grouped lights based on the p
 In essence every light you put in a predefined room, the color changes according to the price
 
 ### Color Indications
+- **Purple**: No WiFi connection if it is stuck on this color
+- **Blue/Red**: Flashing 250ms apart, press button on Hue Bridge
+- **Blue/Red**: Flashing slowly for longer period of time, something is wrong, check if access point is setup correctly
+
+### Default colors for prices
 - **Red**: High power price
-- **Blue**: Moderate power price
+- **Yellow**: Moderate power price
 - **Green**: Low power price
 - **White**: Extremely low price
-- **Purple**: No WiFi connection
-- **Blue/Red**: Flashing 250ms apart, press button on Hue Bridge
-- **Blue/Red**: Flashing slowly, something is wrong, check if access point is setup correctly
 
 This is my first time in years programming in c++, so be very careful about blindly copying my code. Especially in terms of good practices and security, I still have a lot to learn.
 
@@ -50,7 +52,7 @@ It does require a login, but you can register for free and it is worth it. The d
 ## File Descriptions
 
 ### Main Files
-- **PowerPriceLED.ino**: Main file that initializes the device, connects to WiFi, and starts the main loop.
+- **main.cpp**: Main file that initializes the device, connects to WiFi, and starts the main loop.
 
 ### Helper Files
 - **RGBControl.hpp/cpp**: Contains functions for setting up and controlling the RGB LED (neopixel).
@@ -72,7 +74,7 @@ It does require a login, but you can register for free and it is worth it. The d
    ```
 
 2. **Install Required Libraries**
-   Open PlatformIO and make sure following libraries are installed (they should already be in the ini file):
+   Open PlatformIO and make sure following libraries are installed (they should already be in the ini file for Platform.io):
    - FastLED
    - ArduinoJson
    - ESP32mDNS
@@ -82,24 +84,25 @@ It does require a login, but you can register for free and it is worth it. The d
    - Select the appropriate board and port from the Tools menu
    - Upload the sketch to the ESP32
 
-4. **Setup WiFi Credentials**
+4. **Setup**
    - Upon first boot, the device will start as an access point named `PowerPriceMonitor`.
    - Connect to this access point using a phone or computer.
    - You will be redirected to a setup page. Enter your WiFi SSID, password, and the name of the Philips Hue room to control when price changes.
-   - The device will save these credentials and restart to connect to the provided WiFi network.
+   - Default values for prices and colors can also be changed
+   - The device will save everything and restart to connect to the provided WiFi network.
 
 ## Usage
 
 - The device fetches the current power price every minute and updates the color of the RGB LED based on the price.
 - The Philips Hue lights in the specified room will also change color based on the power price.
-- If the button connected to GPIO27 is pressed while booting, the device will reset the WiFi credentials and restart in access point mode.
+- If the button connected to GPIO27 is pressed while booting, the device will reset the WiFi credentials and settings, and restart with setup.
 
 ## Contributing
 
-Contributions are welcome! Please fork the repository and use a feature branch. Pull requests are warmly welcome.
+Contributions are welcome! Please fork the repository and use a feature branch. Pull requests are welcome.
 
 ## TODO
-- WiFi setup should include setting up the price points for high, medium, low, very low
-- WiFi setup should include setting up the colors for price points
+~~WiFi setup should include setting up the price points for high, medium, low, very low~~
+~~WiFi setup should include setting up the colors for price points~~
 - HTTPS should be enabled for the Hue bridge connection
 - "Nice to have", would be instead of polling changes in the room, to listen for changes through events. I have a working service for this `HueEventService`, however it needs some work to properly filter events and be integrated with the main.cpp would require some work, because of the async nature of events. The max polling is 1 light change per second according to the documentation, and right now I set it up to 1 minute... so this shouldn't be a problem
