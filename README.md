@@ -18,7 +18,7 @@ In essence every light you put in a predefined room, the color changes according
 
 This is my first time in years programming in c++, so be very careful about blindly copying my code. Especially in terms of good practices and security, I still have a lot to learn.
 
-This version does not yet use HTTPS for the Hue, only for the call to the price portal (API). **Signify** (Former: Philips lighting) strongly recommends HTTPS. You can see the excellent documentation here:
+This version does not yet use HTTPS for the Hue, ~~only for the call to the price portal (API)~~ I also had to remove it for the price portal as the certificate changed. **Signify** (Former: Philips lighting) strongly recommends HTTPS. You can see the excellent documentation here:
 https://developers.meethue.com/develop/application-design-guidance/using-https/
 
 It does require a login, but you can register for free and it is worth it. The documentation is very to the point and easy to follow with great examples.
