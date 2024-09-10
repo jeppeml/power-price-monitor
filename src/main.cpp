@@ -25,24 +25,24 @@ WiFiSetupService *wifiSetupService;
 ElprisenRESTService *elprisenRESTService;
 
 /* Define colors and prices */
-const uint8_t red[3] = {255, 0, 0};
-const uint8_t blue[3] = {0, 0, 255};
-const uint8_t green[3] = {0, 255, 0};
-const uint8_t white[3] = {255, 255, 255};
-const uint8_t purple[3] = {156, 0, 156};
-const uint8_t yellow[3] = {255, 255, 0};
-const uint8_t black[3] = {0, 0, 0};
+uint8_t red[3] = {255, 0, 0};
+uint8_t blue[3] = {0, 0, 255};
+uint8_t green[3] = {0, 255, 0};
+uint8_t white[3] = {255, 255, 255};
+uint8_t purple[3] = {156, 0, 156};
+uint8_t yellow[3] = {255, 255, 0};
+uint8_t black[3] = {0, 0, 0};
 
 // TODO: Would like this to be setup from WiFiSetupService and saved to Preferences through the ConfigService
 //       Colors would be nice to define with a color picker on the WiFi setup for each color, at least for the prices.
-const double priceHigh = 1.0;
-const double priceMedium = 0.5;
-const double priceLow = 0.0; // anything below this is colorPriceVeryLow
+double priceHigh = 1.0;
+double priceMedium = 0.5;
+double priceLow = 0.0; // anything below this is colorPriceVeryLow
 
-const uint8_t *colorPriceHigh = red;
-const uint8_t *colorPriceMedium = yellow;
-const uint8_t *colorPriceLow = green;
-const uint8_t *colorPriceVeryLow = white;
+uint8_t *colorPriceHigh = red;
+uint8_t *colorPriceMedium = yellow;
+uint8_t *colorPriceLow = green;
+uint8_t *colorPriceVeryLow = white;
 
 /* Shared timeinfo */
 struct tm timeinfo;
@@ -60,7 +60,7 @@ unsigned long ntpUpdateInterval = 24 * 60 * 60 * 1000; // 24 hours in millisecon
 
 /* Setup the main update time for the lights. How often should it check the bridge for new lights in the room */
 unsigned long lastLightsCheck = 0;
-unsigned long minutesBetweenLightUpdates = 1; 
+unsigned long minutesBetweenLightUpdates = 1;
 unsigned long timerDelayLights = minutesBetweenLightUpdates * 60 * 1000;
 
 /* Provisioning setup, if bridge has not recognized the ESP32 */
@@ -119,7 +119,7 @@ void provisioningBlink()
 void resetPreferences()
 {
   Preferences preferences;
-  preferences.begin("wifi", false);
+  preferences.begin("power-price", false);
   preferences.clear();
   preferences.end();
   ESP.restart();
@@ -182,15 +182,56 @@ void setup()
   String password = configService->loadPassword();
   String room = configService->loadRoomName();
 
+  // Load price intervals and color settings
+  priceHigh = configService->loadPriceHigh();
+  priceMedium = configService->loadPriceMedium();
+  priceLow = configService->loadPriceLow();
+
+  colorPriceHigh = configService->loadColorHigh();
+  colorPriceMedium = configService->loadColorMedium();
+  colorPriceLow = configService->loadColorLow();
+  colorPriceVeryLow = configService->loadColorVeryLow();
+
   Serial.println("Loaded configuration:");
-  Serial.println("SSID=\"" + ssid + "\", " + "password=" + password);
+  Serial.println("SSID=\"" + ssid + "\", " + "password=" + password); // You should probably not print the password to Serial
   Serial.println("room=" + room);
+  
+  // Print Price values
+  Serial.print("Price High: ");
+  Serial.println(priceHigh);
+
+  Serial.print("Price Medium: ");
+  Serial.println(priceMedium);
+
+  Serial.print("Price Low: ");
+  Serial.println(priceLow);
+
+  // Define an array of color names and corresponding color variables for looping
+  const char *colorNames[] = {"Color Price High", "Color Price Medium", "Color Price Low", "Color Price Very Low"};
+  uint8_t *colorValues[] = {colorPriceHigh, colorPriceMedium, colorPriceLow, colorPriceVeryLow};
+
+  // Loop through each color and print its RGB values
+  for (int i = 0; i < 4; i++)
+  {
+    Serial.print(colorNames[i]);
+    Serial.print(": ");
+
+    // Print RGB values in a loop
+    for (int j = 0; j < 3; j++)
+    { // Assuming RGB arrays have 3 components
+      Serial.print(colorValues[i][j]);
+      if (j < 2)
+      {
+        Serial.print(", ");
+      }
+    }
+    Serial.println();
+  }
 
   checkWiFiCredentials(ssid, password); // and present AP Portal if not there
 
   updateTime();
 
-  
   hueService = new HueService();
   String hueIP = hueService->getIP();
   Serial.println(hueService->getIP());
