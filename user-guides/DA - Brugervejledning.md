@@ -14,9 +14,9 @@
      - **Hvid**: Meget lav elpris
    - Standardprisintervaller:
      - Over 1,0 DKK/kWh: Høj elpris
-     - 0,5 - 1,0 DKK/kWh: Mellem elpris
-     - 0,0 - 0,5 DKK/kWh: Lav elpris
-     - Under 0,0 DKK/kWh: Meget lav elpris
+     - 0,65 - 1,0 DKK/kWh: Mellem elpris
+     - 0,2 - 0,65 DKK/kWh: Lav elpris
+     - Under 0,2 DKK/kWh: Meget lav elpris
 5. Enheden vil genstarte og forsøge at oprette forbindelse til dit Wi-Fi.
 
 ### Forbindelse til Hue Bridge
@@ -26,13 +26,6 @@
 
 ---
 
-## Strømpriser og farver
-- **Rød**: Høj elpris (over 1,0 DKK/kWh).
-- **Gul**: Mellem elpris (mellem 0,5 og 1,0 DKK/kWh).
-- **Grøn**: Lav elpris (mellem 0,0 og 0,5 DKK/kWh).
-- **Hvid**: Meget lav elpris (under 0,0 DKK/kWh).
-
----
 
 ## Nulstilling af enheden
 
@@ -45,4 +38,4 @@
 
 - **Lilla (fast)**: Enheden er klar til at blive forbundet til Wi-Fi.
 - **Rød og blå (blinkende skiftevis)**: Venter på godkendelse af Hue Bridge (tryk på knappen på hue bridge).
-- **Andre farver**: Enheden viser strømpriser ved hjælp af de valgte farver (Rød, Gul, Grøn, Hvid).
+- **Andre farver**: Enheden viser strømpriser ved hjælp af de valgte farver (f.eks. Rød, Gul, Grøn, Hvid).

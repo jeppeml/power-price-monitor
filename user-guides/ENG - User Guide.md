@@ -14,23 +14,15 @@
      - **White**: Very low electricity price
    - Default price intervals:
      - Above 1.0 DKK/kWh: High electricity price
-     - 0.5 - 1.0 DKK/kWh: Medium electricity price
-     - 0.0 - 0.5 DKK/kWh: Low electricity price
-     - Below 0.0 DKK/kWh: Very low electricity price
+     - 0.65 - 1.0 DKK/kWh: Medium electricity price
+     - 0.2 - 0.65 DKK/kWh: Low electricity price
+     - Below 0.2 DKK/kWh: Very low electricity price
 5. The device will restart and attempt to connect to your Wi-Fi.
 
 ### Connecting to the Hue Bridge
 1. The LED will blink **red and blue alternately**.
 2. Press the **button on your Hue Bridge** within 30 seconds to connect the device.
 3. When the connection is complete, the LED will stop blinking, and the device will start controlling the lights based on the electricity prices.
-
----
-
-## Electricity Prices and Colors
-- **Red**: High electricity price (above 1.0 DKK/kWh).
-- **Yellow**: Medium electricity price (between 0.5 and 1.0 DKK/kWh).
-- **Green**: Low electricity price (between 0.0 and 0.5 DKK/kWh).
-- **White**: Very low electricity price (below 0.0 DKK/kWh).
 
 ---
 
@@ -45,4 +37,4 @@
 
 - **Purple (solid)**: The device is ready to be connected to Wi-Fi.
 - **Red and blue (blinking alternately)**: Waiting for approval from the Hue Bridge (press the button on the hue bridge).
-- **Other colors**: The device is showing electricity prices using the selected colors (Red, Yellow, Green, White).
+- **Other colors**: The device is showing electricity prices using the selected colors (e.g. Red, Yellow, Green, White).
