@@ -1,12 +1,11 @@
 #include "WiFiSetupService.hpp"
-#include "WifiSetup.html.hpp" // HTML code disguised as a header. This is to avoid using flash storage as this can be deleted when resetting the device
+#include "WifiSetup.html.hpp" // HTML code disguised as a header. Not sure if this is a good idea, but here we go anyway
 
 WiFiSetupService::WiFiSetupService(ConfigService &configService)
     : server(80), configService(configService) {}
 
 void WiFiSetupService::startAPAndResetWhenDone()
 {
-
     startAccessPoint();
     begin();
     loopAndProcess();
@@ -45,6 +44,7 @@ void WiFiSetupService::startAccessPoint()
 void WiFiSetupService::handleRoot()
 {
     // Serve the embedded HTML content
+    Serial.println("Serving root HTML page.");
     server.send(200, "text/html", wifi_setup_html);
 }
 
@@ -63,6 +63,19 @@ uint32_t rgbToUint32(const uint8_t rgb[3])
 
 void WiFiSetupService::handleSetWiFi()
 {
+    Serial.println("Handling WiFi setup request.");
+    Serial.print("Number of arguments received: ");
+    Serial.println(server.args());
+
+    // Loop through all arguments and print the name and value
+    for (int i = 0; i < server.args(); i++)
+    {
+        Serial.print("Argument name: ");
+        Serial.println(server.argName(i)); // Print the name of the argument
+        Serial.print("Argument value: ");
+        Serial.println(server.arg(i)); // Print the value of the argument
+    }
+
     if (server.hasArg("ssid") && server.hasArg("password"))
     {
         String ssid = server.arg("ssid");
@@ -112,23 +125,26 @@ void WiFiSetupService::handleSetWiFi()
                                                colorHigh, colorMedium, colorLow, colorVeryLow);
         }
 
-        
         // Check if all tariff prices are present
-        if (server.hasArg("summerLowPrice") && server.hasArg("summerMedPrice") &&
-            server.hasArg("summerHighPrice") && server.hasArg("winterLowPrice") &&
-            server.hasArg("winterMedPrice") && server.hasArg("winterHighPrice")) {
-
+        if (server.hasArg("summerLow") && server.hasArg("summerMedium") &&
+            server.hasArg("summerHigh") && server.hasArg("winterLow") &&
+            server.hasArg("winterMedium") && server.hasArg("winterHigh"))
+        {
+            Serial.println("tariff HANDLING BEING DONE!");
             // Fetch tariff prices into local variables
-            double summerLowPrice = server.arg("summerLowPrice").toDouble();
-            double summerMedPrice = server.arg("summerMedPrice").toDouble();
-            double summerHighPrice = server.arg("summerHighPrice").toDouble();
-            double winterLowPrice = server.arg("winterLowPrice").toDouble();
-            double winterMedPrice = server.arg("winterMedPrice").toDouble();
-            double winterHighPrice = server.arg("winterHighPrice").toDouble();
+            double summerLowPrice = server.arg("summerLow").toDouble();
+            double summerMedPrice = server.arg("summerMedium").toDouble();
+            double summerHighPrice = server.arg("summerHigh").toDouble();
+            double winterLowPrice = server.arg("winterLow").toDouble();
+            double winterMedPrice = server.arg("winterMedium").toDouble();
+            double winterHighPrice = server.arg("winterHigh").toDouble();
 
             // Save the summer and winter tariffs
             configService.saveSummerPrices(summerLowPrice, summerMedPrice, summerHighPrice);
             configService.saveWinterPrices(winterLowPrice, winterMedPrice, winterHighPrice);
+        }
+        else{
+            Serial.println("tariff HANDLING FAILED MISERABLY");
         }
 
         server.send(200, "text/html", "Configuration saved! Device will reboot now.");
@@ -137,8 +153,8 @@ void WiFiSetupService::handleSetWiFi()
     }
     else
     {
-        server.send(400, "text/html", "Missing required SSID, password, or room name fields!");    
-        }
+        server.send(400, "text/html", "Missing required SSID, password, or room name fields!");
+    }
 }
 
 uint32_t WiFiSetupService::convertColorToRGB(String hexColor)

@@ -82,42 +82,137 @@ const int MEDIUM_TARIFF_MORNING_END = 17;   // 17:00
 const int MEDIUM_TARIFF_EVENING_START = 21; // 21:00
 const int MEDIUM_TARIFF_EVENING_END = 24;   // 00:00
 
-const int SUMMER_START_MONTH = 4;  // April
-const int SUMMER_END_MONTH = 9;    // September
+const int SUMMER_START_MONTH = 4; // April
+const int SUMMER_END_MONTH = 9;   // September
 
-enum Tariff {
-    LowTariff,
-    MedTariff,
-    HighTariff
+enum Tariff
+{
+  LowTariff,
+  MedTariff,
+  HighTariff
 };
 
-void setColorBasedOnPrice(double servicePrice) {
-    if (currentGroupedLightID == "")
-        return;
+Tariff getCurrentTariffType()
+{
+  time_t now = time(nullptr); // Get current time
+  struct tm *timeinfo = localtime(&now);
+  int currentHour = timeinfo->tm_hour;
 
-    // Get the current tariff price based on season and time
-    double tariffPrice = getCurrentTariff();
-    
-    // Combine the service price with the tariff price
-    double totalPrice = servicePrice + tariffPrice;
+  if (currentHour >= LOW_TARIFF_START && currentHour < LOW_TARIFF_END)
+  {
+    return LowTariff;
+  }
+  else if (currentHour >= HIGH_TARIFF_START && currentHour < HIGH_TARIFF_END)
+  {
+    return HighTariff;
+  }
+  else if ((currentHour >= MEDIUM_TARIFF_MORNING_START && currentHour < MEDIUM_TARIFF_MORNING_END) ||
+           (currentHour >= MEDIUM_TARIFF_EVENING_START && currentHour < MEDIUM_TARIFF_EVENING_END))
+  {
+    return MedTariff;
+  }
 
-    // Set the color based on the combined price
-    if (totalPrice > priceHigh) {
-        hueLightService->lightControlRGB(hueService->getIP(), currentGroupedLightID, colorPriceHigh);
-        setNeopixelColorRGB(colorPriceHigh);
+  return HighTariff; // Should never reach this point, but just in case
+}
+
+
+bool isSummer()
+{
+  time_t now = time(nullptr); // Get current time
+  struct tm *timeinfo = localtime(&now);
+  int currentMonth = timeinfo->tm_mon + 1; // tm_mon is 0-based, so add 1
+
+  // If current month is between April (4) and September (9), it's summer
+  return currentMonth >= SUMMER_START_MONTH && currentMonth <= SUMMER_END_MONTH;
+}
+
+
+double getCurrentTariff()
+{
+  bool summer = isSummer();
+  Tariff tariffType = getCurrentTariffType();
+
+  if (summer)
+  {
+    if (tariffType == LowTariff)
+    {
+      return configService->loadSummerLow();
     }
-    else if (totalPrice > priceMedium) {
-        hueLightService->lightControlRGB(hueService->getIP(), currentGroupedLightID, colorPriceMedium);
-        setNeopixelColorRGB(colorPriceMedium);
+    else if (tariffType == MedTariff)
+    {
+      return configService->loadSummerMedium();
     }
-    else if (totalPrice > priceLow) {
-        hueLightService->lightControlRGB(hueService->getIP(), currentGroupedLightID, colorPriceLow);
-        setNeopixelColorRGB(colorPriceLow);
+    else if (tariffType == HighTariff)
+    {
+      return configService->loadSummerHigh();
     }
-    else {
-        hueLightService->lightControlRGB(hueService->getIP(), currentGroupedLightID, colorPriceVeryLow);
-        setNeopixelColorRGB(colorPriceVeryLow);
+  }
+  else
+  {
+    if (tariffType == LowTariff)
+    {
+      return configService->loadWinterLow();
     }
+    else if (tariffType == MedTariff)
+    {
+      return configService->loadWinterMedium();
+    }
+    else if (tariffType == HighTariff)
+    {
+      return configService->loadWinterHigh();
+    }
+  }
+
+  return 99999; // Return ultra high price if none found
+}
+
+void setColorBasedOnPrice(double servicePrice)
+{
+  if (currentGroupedLightID == "")
+    return;
+  
+  Serial.print("Current raw price : ");
+  Serial.println(servicePrice);
+
+  // Get the current tariff price based on season and time
+  double tariffPrice = getCurrentTariff();
+  Serial.print("Current tariff : ");
+  Serial.println(tariffPrice);
+  // Combine the service price with the tariff price
+  double totalPrice = servicePrice + tariffPrice;
+
+  Serial.print("Current total price : ");
+  Serial.println(servicePrice);
+
+  Serial.println("*** Current price setup ***");
+  Serial.print("High price:\t");
+  Serial.println(priceHigh);
+  Serial.print("Medium price:\t");
+  Serial.println(priceMedium);
+  Serial.print("Low price:\t");
+  Serial.println(priceLow);
+
+  // Set the color based on the combined price
+  if (totalPrice > priceHigh)
+  {
+    hueLightService->lightControlRGB(hueService->getIP(), currentGroupedLightID, colorPriceHigh);
+    setNeopixelColorRGB(colorPriceHigh);
+  }
+  else if (totalPrice > priceMedium)
+  {
+    hueLightService->lightControlRGB(hueService->getIP(), currentGroupedLightID, colorPriceMedium);
+    setNeopixelColorRGB(colorPriceMedium);
+  }
+  else if (totalPrice > priceLow)
+  {
+    hueLightService->lightControlRGB(hueService->getIP(), currentGroupedLightID, colorPriceLow);
+    setNeopixelColorRGB(colorPriceLow);
+  }
+  else
+  {
+    hueLightService->lightControlRGB(hueService->getIP(), currentGroupedLightID, colorPriceVeryLow);
+    setNeopixelColorRGB(colorPriceVeryLow);
+  }
 }
 
 void provisioningBlink()
@@ -182,56 +277,6 @@ void checkForPreferencesResetButtonPressed()
   }
 }
 
-bool isSummer() {
-    time_t now = time(nullptr); // Get current time
-    struct tm *timeinfo = localtime(&now);
-    int currentMonth = timeinfo->tm_mon + 1; // tm_mon is 0-based, so add 1
-
-    // If current month is between April (4) and September (9), it's summer
-    return currentMonth >= SUMMER_START_MONTH && currentMonth <= SUMMER_END_MONTH;
-}
-
-Tariff getCurrentTariffType() {
-    time_t now = time(nullptr); // Get current time
-    struct tm *timeinfo = localtime(&now);
-    int currentHour = timeinfo->tm_hour;
-
-    if (currentHour >= LOW_TARIFF_START && currentHour < LOW_TARIFF_END) {
-        return LowTariff;
-    } else if (currentHour >= HIGH_TARIFF_START && currentHour < HIGH_TARIFF_END) {
-        return HighTariff;
-    } else if ((currentHour >= MEDIUM_TARIFF_MORNING_START && currentHour < MEDIUM_TARIFF_MORNING_END) ||
-               (currentHour >= MEDIUM_TARIFF_EVENING_START && currentHour < MEDIUM_TARIFF_EVENING_END)) {
-        return MedTariff;
-    }
-
-    return HighTariff; // Should never reach this point, but just in case
-}
-
-double getCurrentTariff() {bool summer = isSummer();
-    Tariff tariffType = getCurrentTariffType();
-
-    if (summer) {
-        if (tariffType == LowTariff) {
-            return configService->loadSummerLow();
-        } else if (tariffType == MedTariff) {
-            return configService->loadSummerMedium();
-        } else if (tariffType == HighTariff) {
-            return configService->loadSummerHigh();
-        }
-    } else {
-        if (tariffType == LowTariff) {
-            return configService->loadWinterLow();
-        } else if (tariffType == MedTariff) {
-            return configService->loadWinterMedium();
-        } else if (tariffType == HighTariff) {
-            return configService->loadWinterHigh();
-        }
-    }
-
-    return 99999; // Return ultra high price if none found
-}
-
 void setup()
 {
   Serial.begin(115200);
@@ -267,7 +312,7 @@ void setup()
   Serial.println("Loaded configuration:");
   Serial.println("SSID=\"" + ssid + "\", " + "password=" + password); // You should probably not print the password to Serial
   Serial.println("room=" + room);
-  
+
   // Print Price values
   Serial.print("Price High: ");
   Serial.println(priceHigh);
