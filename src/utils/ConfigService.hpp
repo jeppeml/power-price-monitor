@@ -51,6 +51,19 @@ public:
                               uint32_t colorHigh, uint32_t colorMedium, 
                               uint32_t colorLow, uint32_t colorVeryLow);
 
+
+    // Setting net tariffs. These are fixed, as there is no API available
+    void saveSummerPrices(double low, double medium, double high);
+    void saveWinterPrices(double low, double medium, double high);
+
+    double loadSummerLow();
+    double loadSummerMedium();
+    double loadSummerHigh();
+
+    double loadWinterLow();
+    double loadWinterMedium();
+    double loadWinterHigh();
+
 private:
     Preferences preferences;
     uint8_t colorBufferHigh[3];  // Buffer for high color

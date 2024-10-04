@@ -83,6 +83,27 @@ void ConfigService::savePriceLow(double priceLow)
     preferences.putDouble("priceLow", priceLow);
 }
 
+void ConfigService::saveSummerPrices(double low, double medium, double high) {
+    preferences.putDouble("summerLow", low);
+    preferences.putDouble("summerMedium", medium);
+    preferences.putDouble("summerHigh", high);
+}
+
+void ConfigService::saveWinterPrices(double low, double medium, double high) {
+    preferences.putDouble("winterLow", low);
+    preferences.putDouble("winterMedium", medium);
+    preferences.putDouble("winterHigh", high);
+}
+
+double ConfigService::loadSummerLow() { return preferences.getDouble("summerLow", 0); }
+double ConfigService::loadSummerMedium() { return preferences.getDouble("summerMedium", 0); }
+double ConfigService::loadSummerHigh() { return preferences.getDouble("summerHigh", 0); }
+
+double ConfigService::loadWinterLow() { return preferences.getDouble("winterLow", 0); }
+double ConfigService::loadWinterMedium() { return preferences.getDouble("winterMedium", 0); }
+double ConfigService::loadWinterHigh() { return preferences.getDouble("winterHigh", 0); }
+
+
 // Helper method to convert uint32_t to RGB array
 void uint32ToRGB(uint32_t color, uint8_t rgb[3])
 {

@@ -19,6 +19,23 @@ private:
     void handleRoot();
     void handleSetWiFi();
     void handleNotFound();
+    void saveTariffPricesAndColors();
+    void loadTariffPricesAndColors();
+
+    float summerLowPrice;
+    float summerMedPrice;
+    float summerHighPrice;
+    float winterLowPrice;
+    float winterMedPrice;
+    float winterHighPrice;
+
+    String summerLowColor;
+    String summerMedColor;
+    String summerHighColor;
+    String winterLowColor;
+    String winterMedColor;
+    String winterHighColor;
+
     uint32_t convertColorToRGB(String hexColor);
 
     WebServer server;
