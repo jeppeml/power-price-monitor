@@ -347,7 +347,7 @@ const char wifi_setup_html[] PROGMEM = R"rawliteral(
                   step="0.1"
                   class="price-slider"
                   name="priceMedium"
-                  value="0.50"
+                  value="0.65"
                   oninput="updateSliderValue('mediumValue', this.value)"
                 />
               </div>
@@ -457,7 +457,7 @@ const char wifi_setup_html[] PROGMEM = R"rawliteral(
                   step="0.1"
                   class="price-slider"
                   name="priceLow"
-                  value="0.00"
+                  value="0.20"
                   oninput="updateSliderValue('lowValue', this.value)"
                 />
               </div>
@@ -798,16 +798,6 @@ const char wifi_setup_html[] PROGMEM = R"rawliteral(
         document.getElementById(id).innerText = parseFloat(value).toFixed(2);
       }
 
-      // Automatically handle Danish comma decimal
-      document.querySelector("form").addEventListener("submit", function (e) {
-        const inputs = document.querySelectorAll('input[type="text"]');
-        inputs.forEach((input) => {
-          if (input.value.includes(",")) {
-            input.value = input.value.replace(",", "."); // Replace comma with period
-          }
-        });
-      });
-
       // Translation logic for Danish and English color names
       const translations = {
         en: {
@@ -882,6 +872,5 @@ const char wifi_setup_html[] PROGMEM = R"rawliteral(
     </script>
   </body>
 </html>
-
 
 )rawliteral";
