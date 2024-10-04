@@ -130,7 +130,7 @@ void WiFiSetupService::handleSetWiFi()
             server.hasArg("summerHigh") && server.hasArg("winterLow") &&
             server.hasArg("winterMedium") && server.hasArg("winterHigh"))
         {
-            Serial.println("tariff HANDLING BEING DONE!");
+            Serial.println("tariff handling... saving...");
             // Fetch tariff prices into local variables
             double summerLowPrice = server.arg("summerLow").toDouble();
             double summerMedPrice = server.arg("summerMedium").toDouble();
@@ -144,7 +144,7 @@ void WiFiSetupService::handleSetWiFi()
             configService.saveWinterPrices(winterLowPrice, winterMedPrice, winterHighPrice);
         }
         else{
-            Serial.println("tariff HANDLING FAILED MISERABLY");
+            Serial.println("tariff handling not saved");
         }
 
         server.send(200, "text/html", "Configuration saved! Device will reboot now.");
