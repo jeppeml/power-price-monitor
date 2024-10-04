@@ -20,7 +20,7 @@ In essence every light you put in a predefined room, the color changes according
 
 This is my first time in years programming in c++, so be very careful about blindly copying my code. Especially in terms of good practices and security, I still have a lot to learn.
 
-This version does not yet use HTTPS for the Hue, ~~only for the call to the price portal (API)~~ I also had to remove it for the price portal as the certificate changed. **Signify** (Former: Philips lighting) strongly recommends HTTPS. You can see the excellent documentation here:
+This version does not yet use HTTPS for the Hue, ~~only for the call to the price portal (API)~~ I also had to remove it for the price portal as the certificate changed, and as I don't control the API, I don't want the hassle og changing the certficate every time. **Signify** (Former: Philips lighting) strongly recommends HTTPS. You can see the excellent documentation here:
 https://developers.meethue.com/develop/application-design-guidance/using-https/
 
 It does require a login, but you can register for free and it is worth it. The documentation is very to the point and easy to follow with great examples.
@@ -39,11 +39,11 @@ It does require a login, but you can register for free and it is worth it. The d
 - ESP32 board, made for FireBeetle 2 ESP32-E IoT, but any other board should do. You need to change the neopixel RGB led pin from D8 to your relevant GPIO
 - RGB LED (Neopixel, built in on the Firebeetle)
 - Philips Hue bridge
-- Push button (for resetting WiFi credentials, built in on GPIO27 on the Firebeetle)
+- Push button (for resetting WiFi credentials and custom values for colors and prices, built in on GPIO27 on the Firebeetle)
 
 ## Software Requirements
 - PlatformIO IDE (or you might change main.cpp to main.ino and get lucky with the Arduino IDE)
-- ESP32 board library
+- ESP32 board library (Beware Espressif changed the WifiSecureClient.h in 3.x, but I set a specific version dependency for 2.x, so if you update it will need to be updated to the new NetworkSecure.h or whatever it is called)
 - FastLED library
 - ArduinoJson library
 - ESP32mDNS
@@ -62,7 +62,8 @@ It does require a login, but you can register for free and it is worth it. The d
 - **HueService.hpp/cpp**: Discovers and fetches IP address and port of the Philips Hue bridge.
 - **HueLightService.hpp/cpp**: Controls the lights connected to the Philips Hue bridge.
 - **HueEventService.hpp/cpp**: Handles events from the Philips Hue bridge. (Currently not integrated, but does work. Needs more work and integration with main.cpp not straightforward)
-- **WiFiSetupService.hpp/cpp**: Sets up the device as a WiFi access point to capture WiFi credentials using `Captive Portal` 
+- **WiFiSetupService.hpp/cpp**: Sets up the device as a WiFi access point to capture WiFi credentials and custom setup of colors and prices using `Captive Portal` 
+- **WifiSetup.html.hpp**: Used by the WifiSetupService. An html file wrapped as a header file. I am not really sure why I did it like this. It was easy though. Should probably properly load it from NVS as a blob.
 - **WiFiUtils.hpp/cpp**: Simply connects to the Wifi, keeps trying forever
 
 ## Setup Instructions
@@ -87,15 +88,14 @@ It does require a login, but you can register for free and it is worth it. The d
 4. **Setup**
    - Upon first boot, the device will start as an access point named `PowerPriceMonitor`.
    - Connect to this access point using a phone or computer.
-   - You will be redirected to a setup page. Enter your WiFi SSID, password, and the name of the Philips Hue room to control when price changes.
-   - Default values for prices and colors can also be changed
+   - You will be redirected to a setup page. Enter your WiFi SSID, password, and the name of the Philips Hue room. Change the colors and/or price ranges if you want.
    - The device will save everything and restart to connect to the provided WiFi network.
 
 ## Usage
 
 - The device fetches the current power price every minute and updates the color of the RGB LED based on the price.
 - The Philips Hue lights in the specified room will also change color based on the power price.
-- If the button connected to GPIO27 is pressed while booting, the device will reset the WiFi credentials and settings, and restart with setup.
+- If the button connected to GPIO27 is held for around 6 seconds while booting, the device will reset the WiFi credentials and settings, and restart with setup.
 
 ## Contributing
 
